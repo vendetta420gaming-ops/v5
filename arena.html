@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendetta — Arena</title>
+<link rel="stylesheet" href="assets/vendetta-sync.css">
+<style>
+:root{
+  --green:#8cff86;--green-glow:rgba(140,255,134,.35);--gold:#f0c974;
+  --silver:#d8dfe8;--platinum:#f4f7fb;--silver-soft:rgba(216,223,232,.14);
+  --panel:rgba(13,16,19,.74);--panel-2:rgba(9,11,14,.82);
+  --line:rgba(255,255,255,.08);--line-2:rgba(216,223,232,.12);
+  --max:1480px;--ease:280ms cubic-bezier(.23,1,.32,1)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  color:#e8edf4; line-height:1.55; overflow-x:hidden; background:transparent!important
+}
+body.theme-nuclear{--green:#8cff86;--green-glow:rgba(140,255,134,.35)}
+body.theme-solar{--green:#f0c974;--green-glow:rgba(240,201,116,.32)}
+body.theme-inferno{--green:#ff7f6f;--green-glow:rgba(255,127,111,.32)}
+body.theme-void{--green:#9d8cff;--green-glow:rgba(157,140,255,.32)}
+a{color:inherit;text-decoration:none}
+
+.global-video-bg{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden;background:#030403}
+.global-video-media{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.02) contrast(1.06) brightness(.42);transform:scale(1.04)}
+.global-video-scrim{position:absolute;inset:0;background:
+  radial-gradient(circle at 50% 0%, rgba(255,255,255,.05), transparent 28%),
+  linear-gradient(180deg, rgba(3,4,5,.42) 0%, rgba(3,4,5,.64) 30%, rgba(3,4,5,.9) 100%)}
+
+header{position:sticky;top:0;z-index:100;background:rgba(5,7,5,.56)!important;backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 18px 44px rgba(0,0,0,0.22)}
+.header-inner{display:flex!important;align-items:center;justify-content:space-between;gap:clamp(24px,3vw,56px)!important;min-height:96px!important;padding:18px 40px!important}
+.brand{display:flex;align-items:center;flex:0 0 auto;margin-right:clamp(8px,1.8vw,28px)}
+.brand-link img{width:112px;height:auto;display:block;filter:drop-shadow(0 0 24px rgba(255,255,255,.12)) drop-shadow(0 0 24px var(--green-glow))}
+nav{flex:1 1 auto;display:flex;justify-content:center!important;align-items:center;gap:clamp(18px,2vw,42px)!important;padding:0 clamp(10px,2vw,36px);flex-wrap:nowrap!important}
+nav a{color:#ccd4cc;text-transform:uppercase;position:relative;font-size:10.8px;letter-spacing:.22em;font-weight:500;padding:18px 0!important;white-space:nowrap}
+nav a:hover,nav a.active{color:var(--green)}
+nav a.active::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:var(--green);border-radius:50%;box-shadow:0 0 12px var(--green-glow)}
+.top-right{display:flex;align-items:center;gap:16px!important;justify-self:end;margin-left:clamp(8px,1.5vw,24px)!important;position:relative;flex:0 0 auto}
+.wallet-box{min-height:44px;padding:0 18px;display:inline-flex;align-items:center;gap:8px;border-radius:9999px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(14,17,14,.96),rgba(9,11,9,.98));box-shadow:0 0 26px rgba(196,170,99,.12),inset 0 1px 0 rgba(255,255,255,.05)}
+.wallet-mark,.wallet-value{background:linear-gradient(90deg,#bfc7d2 0%,#f0f4f8 26%,#cfd7df 54%,#f0d48a 84%,#bfc7d2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+.wallet-value{font-size:28px;letter-spacing:-.04em}.wallet-mark{font-size:18px}
+.icon{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);display:grid;place-items:center;color:#e7ece7;font-size:13px;cursor:pointer}
+
+.page-hero,.section-wrap,footer{max-width:var(--max);margin:0 auto;padding-left:36px;padding-right:36px;position:relative;z-index:1}
+.page-hero{padding-top:90px;padding-bottom:0}
+.arena-hero-shell{position:relative;min-height:620px;border-radius:34px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));backdrop-filter:blur(18px);box-shadow:0 30px 80px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04)}
+.arena-slide{position:absolute;inset:0;opacity:0;transition:opacity .55s ease;background-size:cover;background-position:center center;filter:saturate(1.02) contrast(1.04) brightness(.62);transform:scale(1.02)}
+.arena-slide.active{opacity:1}
+.arena-hero-overlay{position:absolute;inset:0;background:radial-gradient(circle at 22% 18%, color-mix(in srgb, var(--green) 16%, transparent), transparent 24%),linear-gradient(90deg, rgba(7,9,12,.84) 0%, rgba(7,9,12,.68) 28%, rgba(7,9,12,.26) 62%, rgba(7,9,12,.56) 100%),linear-gradient(180deg, rgba(7,9,12,.16), rgba(7,9,12,.48) 42%, rgba(7,9,12,.86) 100%)}
+.hero-content-shell{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:space-between;min-height:620px;padding:42px 42px 120px}
+.page-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.55);margin-bottom:16px}
+.page-title{font-size:clamp(58px,7vw,102px);line-height:.9;letter-spacing:-.075em;text-transform:uppercase;margin-bottom:12px}
+.page-title span{color:var(--green);text-shadow:0 0 18px var(--green-glow)}
+.page-copy{max-width:760px;color:rgba(232,240,244,.72);font-size:17px}
+.hero-copy-stack{max-width:760px;padding:10px 0 18px}
+.hero-kpis{display:grid;grid-template-columns:1.2fr 1.2fr .9fr .9fr;gap:14px;margin-top:10px;align-items:stretch}
+.hero-kpi,.section-card,.slip-card,.meta-card{border-radius:28px;border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.018));backdrop-filter:blur(16px);box-shadow:0 22px 56px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.03)}
+.hero-kpi{padding:14px 18px;min-height:76px;border-radius:20px;background:linear-gradient(180deg, rgba(14,18,23,.72), rgba(10,12,16,.82));display:flex;flex-direction:column;justify-content:center}
+.hero-kpi.main-balance{background:linear-gradient(145deg, rgba(34,39,46,.92), rgba(16,18,22,.96));border-color:rgba(216,223,232,.2);box-shadow:0 18px 44px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06), 0 0 0 1px rgba(255,255,255,.02)}
+.hero-kpi small,.meta-card small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(232,240,244,.52);margin-bottom:8px}
+.hero-kpi strong,.meta-card strong{display:block;font-size:24px;line-height:1;color:var(--platinum);margin-bottom:4px}
+.hero-kpi.main-balance strong{background:linear-gradient(90deg, #eff4fb 0%, #bcc4cf 30%, #ffffff 50%, #d4dae2 72%, #9da6b4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(255,255,255,.08))}
+.hero-kpi p{color:rgba(232,240,244,.62);font-size:12px}
+.arena-actions{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;width:min(1180px, calc(100% - 64px))}
+.arena-action{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));backdrop-filter:blur(14px);color:rgba(232,240,244,.76);text-transform:uppercase;letter-spacing:.16em;font-size:9.5px;cursor:pointer;transition:all var(--ease)}
+.arena-action:hover,.arena-action.active{transform:translateY(-1px);color:var(--platinum);border-color:color-mix(in srgb, var(--green) 28%, rgba(255,255,255,.18));box-shadow:0 0 0 1px rgba(255,255,255,.03), 0 0 24px color-mix(in srgb, var(--green) 14%, transparent)}
+.hero-inline-note{display:flex;align-items:center;gap:10px;margin-top:18px;color:rgba(232,240,244,.52);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.hero-inline-note::before{content:"";width:28px;height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent)}
+
+.section-wrap{margin-top:86px;padding-bottom:0}
+.board-layout{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(340px,.84fr);gap:44px;align-items:start}
+.section-card{padding:30px}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.section-head h2{font-size:38px;line-height:.94;letter-spacing:-.05em;text-transform:uppercase;color:var(--platinum)}
+.section-head p{max-width:760px;color:rgba(232,240,244,.66)}
+.badge{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);background:rgba(255,255,255,.035);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.filter-chip{
+  min-height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--line-2);
+  background:rgba(255,255,255,.03);color:rgba(232,240,244,.72);cursor:pointer;
+  text-transform:uppercase;letter-spacing:.16em;font-size:10px;transition:all var(--ease)
+}
+.filter-chip.active,.filter-chip:hover{color:var(--platinum);border-color:rgba(240,244,248,.22);box-shadow:0 0 0 1px rgba(255,255,255,.04),0 0 18px rgba(216,223,232,.08);transform:translateY(-1px)}
+.events-stack{display:grid;gap:16px}
+
+.market-row{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;
+  padding:20px 22px;border-radius:24px;border:1px solid rgba(216,223,232,.1);
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02))
+}
+.match-side{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.club-icons{display:flex;align-items:center;gap:8px}
+.club-badge{
+  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid rgba(216,223,232,.16);
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.12), rgba(255,255,255,.03));
+  color:var(--platinum);font-size:12px;font-weight:800;letter-spacing:.04em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 0 1px rgba(255,255,255,.02)
+}
+.versus{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,240,244,.34)}
+.match-meta strong{display:block;font-size:19px;line-height:1.18;color:var(--platinum);margin-bottom:3px}
+.match-meta p{color:rgba(232,240,244,.58);font-size:14px}
+.match-tag{display:inline-flex;align-items:center;gap:8px;margin-top:8px;color:rgba(232,240,244,.5);font-size:11px;text-transform:uppercase;letter-spacing:.18em}
+.match-tag::before{content:"";width:18px;height:1px;background:linear-gradient(90deg, transparent, rgba(216,223,232,.56), transparent)}
+
+.market-odds{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(74px,74px);gap:12px;align-items:center}
+.odd-btn{
+  min-height:58px;padding:0 8px;border-radius:18px;border:1px solid rgba(216,223,232,.12);
+  background:linear-gradient(180deg, rgba(16,20,24,.98), rgba(10,12,16,1));
+  color:var(--silver);display:grid;place-items:center;text-align:center;cursor:pointer;
+  transition:all var(--ease)
+}
+.odd-btn b{display:block;font-size:17px;color:var(--platinum);line-height:1}
+.odd-btn span{display:block;margin-top:4px;font-size:12px;color:rgba(216,223,232,.78);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.odd-btn:hover,.odd-btn.is-picked{
+  transform:translateY(-2px); border-color:rgba(240,244,248,.24);
+  color:var(--platinum); box-shadow:0 0 0 1px rgba(255,255,255,.05),0 10px 24px rgba(0,0,0,.18),0 0 24px rgba(216,223,232,.08)
+}
+.odd-btn.is-picked{
+  background:linear-gradient(180deg, color-mix(in srgb, var(--green) 8%, rgba(16,20,24,.98)), rgba(10,12,16,1));
+  border-color:color-mix(in srgb, var(--green) 28%, rgba(216,223,232,.18));
+}
+.odds-note{margin-top:18px;color:rgba(232,240,244,.46);font-size:12px}
+
+.slip-card{padding:30px;position:sticky;top:116px;background:
+ linear-gradient(180deg, rgba(18,21,26,.88), rgba(11,13,16,.94))}
+.slip-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.slip-title small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(232,240,244,.46);margin-bottom:8px}
+.slip-title h3{font-size:34px;line-height:.94;letter-spacing:-.05em;text-transform:uppercase;color:var(--platinum)}
+.slip-badge{
+  display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border-radius:999px;
+  border:1px solid rgba(216,223,232,.14);background:rgba(255,255,255,.035);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--silver)
+}
+.slip-paper{
+  border-radius:22px; border:1px solid rgba(216,223,232,.12);
+  background:linear-gradient(180deg, rgba(245,248,252,.045), rgba(245,248,252,.018));
+  overflow:hidden
+}
+.slip-paper-head,.slip-paper-foot{
+  padding:16px 18px;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(216,223,232,.08)
+}
+.slip-paper-foot{border-top:1px solid rgba(216,223,232,.08);border-bottom:0}
+.slip-paper-head strong{font-size:13px;text-transform:uppercase;letter-spacing:.18em;color:var(--platinum)}
+.slip-paper-head p,.slip-paper-foot p{margin-top:6px;color:rgba(232,240,244,.54);font-size:13px}
+.ticket-list{padding:0 18px}
+.ticket-empty{padding:30px 0}
+.ticket-empty strong{display:block;font-size:22px;color:var(--platinum);margin-bottom:8px}
+.ticket-empty p{color:rgba(232,240,244,.58)}
+.ticket-row{
+  display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;
+  padding:16px 0;border-bottom:1px dashed rgba(216,223,232,.1)
+}
+.ticket-row:last-child{border-bottom:0}
+.ticket-row strong{display:block;font-size:14px;color:var(--platinum)}
+.ticket-row p{color:rgba(232,240,244,.5);font-size:12px;margin-top:2px}
+.ticket-market{font-size:12px;color:var(--silver);letter-spacing:.12em;text-transform:uppercase}
+.ticket-odds{font-size:15px;color:var(--platinum);font-variant-numeric:tabular-nums}
+.wallet-transfer,.stake-shell,.slip-meta{
+  margin-top:18px;padding:18px 20px;border-radius:20px;border:1px solid rgba(216,223,232,.12);background:rgba(255,255,255,.03)
+}
+.wallet-transfer{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.wallet-transfer small,.stake-shell small,.slip-meta small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(232,240,244,.48);margin-bottom:8px}
+.wallet-transfer strong{font-size:18px;color:var(--platinum)}
+.wallet-transfer p{color:rgba(232,240,244,.58)}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.cta{
+  min-height:46px;padding:0 16px;border-radius:14px;border:1px solid rgba(216,223,232,.14);
+  background:linear-gradient(180deg, rgba(18,22,26,.98), rgba(11,14,17,1));
+  color:var(--platinum);cursor:pointer;transition:all var(--ease)
+}
+.cta:hover{transform:translateY(-1px);border-color:rgba(240,244,248,.26)}
+.cta.primary{
+  border-color:color-mix(in srgb, var(--green) 24%, rgba(216,223,232,.16));
+  color:var(--green);box-shadow:0 0 18px color-mix(in srgb, var(--green) 12%, transparent)
+}
+.stake-line{display:flex;justify-content:space-between;align-items:center;gap:16px}
+#stakeValue{font-size:18px;color:var(--platinum);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;margin-top:10px;accent-color:#cfd7df}
+.ticket-meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.meta-card{padding:16px 18px;min-height:108px}
+.meta-card strong{font-size:24px}
+.meta-card p{color:rgba(232,240,244,.56);font-size:12px;margin-top:8px}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.reward-list,.history-list{display:grid;gap:14px}
+.reward-row,.history-row{
+  display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;
+  padding:16px 18px;border-radius:20px;border:1px solid rgba(216,223,232,.1);
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02))
+}
+.reward-row strong,.history-row strong{display:block;font-size:16px;color:var(--platinum)}
+.reward-row p,.history-row p{color:rgba(232,240,244,.56);font-size:13px;margin-top:3px}
+.history-row span:last-child,.reward-row span:last-child{font-variant-numeric:tabular-nums;color:var(--silver)}
+
+footer{padding-top:12px;padding-bottom:46px;margin-top:110px;color:rgba(255,255,255,.5);font-size:13px}
+
+@media(max-width:1180px){
+  .header-inner{flex-wrap:wrap;justify-content:center}
+  nav{order:3;width:100%;overflow-x:auto;justify-content:flex-start!important;padding-bottom:2px}
+  .top-right{margin-left:0!important}
+  .hero-content-shell{padding:34px 28px 110px}
+  .hero-kpis{grid-template-columns:1fr 1fr}
+  .arena-actions{position:relative;left:auto;bottom:auto;transform:none;width:100%;padding:0 28px 22px;justify-content:flex-start}
+  .board-layout,.grid-2,.ticket-meta-grid{grid-template-columns:1fr}
+  .slip-card{position:relative;top:0}
+}
+@media(max-width:760px){
+  .page-hero,.section-wrap,footer{padding-left:18px;padding-right:18px}
+  .arena-hero-shell{min-height:660px}
+  .hero-content-shell{padding:28px 18px 94px}
+  .hero-kpis{grid-template-columns:1fr}
+  .arena-actions{padding:0 18px 14px;gap:8px}
+  .market-row{grid-template-columns:1fr}
+  .match-side{grid-template-columns:1fr}
+  .club-icons{margin-bottom:6px}
+  .market-odds{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:row;grid-auto-columns:auto}
+  .wallet-transfer{align-items:flex-start}
+}
+
+
+  /* === V-COIN balance refresh / liquid glass 2026 === */
+  .top-right{align-items:center;gap:12px!important}
+  .wallet-box,.wallet{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    min-height:46px;
+    padding:0 14px 0 13px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.08)!important;
+    background:linear-gradient(180deg, rgba(22,28,27,.34), rgba(10,13,12,.46))!important;
+    box-shadow:0 10px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08), 0 0 22px color-mix(in srgb, var(--accent, var(--green, #8cff86)) 12%, transparent)!important;
+    backdrop-filter:blur(18px) saturate(1.18);
+    -webkit-backdrop-filter:blur(18px) saturate(1.18);
+    overflow:hidden;
+  }
+  .wallet-box::before,.wallet::before{
+    content:"";
+    position:absolute;
+    inset:1px;
+    border-radius:inherit;
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.025) 38%, rgba(255,255,255,.01));
+    opacity:.6;
+    pointer-events:none;
+  }
+  .wallet-box::after,.wallet::after{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    border-radius:inherit;
+    background:radial-gradient(circle at 18% 16%, rgba(255,255,255,.13), transparent 26%), radial-gradient(circle at 82% 130%, color-mix(in srgb, var(--accent, var(--green, #8cff86)) 15%, transparent), transparent 38%);
+    opacity:.85;
+    pointer-events:none;
+  }
+  .wallet-mark,.wallet .mark{
+    position:relative;
+    z-index:1;
+    font-size:13px!important;
+    font-weight:800;
+    letter-spacing:.04em;
+    color:rgba(245,248,245,.9)!important;
+    background:none!important;
+    -webkit-text-fill-color:initial!important;
+    text-shadow:0 0 18px color-mix(in srgb, var(--accent, var(--green, #8cff86)) 20%, transparent);
+  }
+  .wallet-value,.wallet .value{
+    position:relative;
+    z-index:1;
+    font-size:17px!important;
+    font-weight:700;
+    letter-spacing:-.03em;
+    color:#edf3ee!important;
+    background:none!important;
+    -webkit-text-fill-color:initial!important;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 18px rgba(255,255,255,.06);
+  }
+  .wallet-box:hover,.wallet:hover{
+    transform:translateY(-1px);
+    border-color:rgba(255,255,255,.12)!important;
+    box-shadow:0 14px 34px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.1), 0 0 28px color-mix(in srgb, var(--accent, var(--green, #8cff86)) 18%, transparent)!important;
+  }
+  .arena-wallet{
+    background:linear-gradient(180deg, rgba(22,24,29,.34), rgba(10,12,16,.48))!important;
+    opacity:.94;
+  }
+  @media (max-width:900px){
+    .wallet-box,.wallet{min-height:42px;padding:0 12px;gap:8px}
+    .wallet-value,.wallet .value{font-size:15px!important}
+    .wallet-mark,.wallet .mark{font-size:12px!important}
+  }
+
+</style>
+</head>
+<body class="theme-nuclear">
+<div class="global-video-bg" aria-hidden="true">
+  <video class="global-video-media" autoplay muted loop playsinline preload="auto">
+    <source src="global-bg.mp4" type="video/mp4">
+  </video>
+  <div class="global-video-scrim"></div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="brand"><a class="brand-link" href="index.html" aria-label="Vendetta Home"><img src="vendetta_logo_header_large.png" alt="Vendetta"></a></div>
+    <nav>
+      <a href="battlepass.html">Battle Pass</a>
+      <a href="shop.html">Shop</a>
+      <a href="generator.html">Generator</a>
+      <a href="arena.html" class="active">Arena</a>
+      <a href="rewards.html">Rewards</a>
+    </nav>
+    <div class="top-right">
+      <div class="wallet-box"><span class="wallet-mark">V</span><span class="wallet-value" id="mainWalletHeader">8.4537</span></div>
+      <div class="wallet-box arena-wallet"><span class="wallet-mark">A</span><span class="wallet-value" id="arenaWalletHeader">2.4000</span></div>
+      <button class="icon" id="langTrigger" type="button">HR</button>
+      <button class="icon" id="themeTrigger" type="button">✦</button>
+      <button class="icon" id="profileTrigger" type="button">⌾</button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="arena-hero-shell">
+    <div class="arena-slide active" data-slide="football" style="background-image:url('SQWQ.png')"></div>
+    <div class="arena-slide" data-slide="basketball" style="background-image:url('wec.png')"></div>
+    <div class="arena-slide" data-slide="mma" style="background-image:url('MGHM.png')"></div>
+    <div class="arena-slide" data-slide="esports" style="background-image:url('assets/qef.jpg')"></div>
+    <div class="arena-hero-overlay"></div>
+
+    <div class="hero-content-shell">
+      <div class="hero-copy-stack">
+        <div class="page-kicker">Vendetta / Arena</div>
+        <h1 class="page-title"><span>Arena</span></h1>
+        <p class="page-copy">Prediction layer za sportske i esports evente, složen kao clean hero bez viška objašnjenja.</p>
+
+      </div>
+
+      <div class="hero-kpis">
+        <article class="hero-kpi main-balance">
+          <small>Glavni V-Wallet</small>
+          <strong id="mainWalletCard">8.4537 V</strong>
+          <p>Primarni wallet za cijeli sustav.</p>
+        </article>
+        <article class="hero-kpi main-balance">
+          <small>Arena balance</small>
+          <strong id="arWallet">2.4000 V</strong>
+          <p>Poseban balance samo za Arena slipove.</p>
+        </article>
+        <article class="hero-kpi">
+          <small>Dnevni prijenos</small>
+          <strong id="transferState">2.0 V</strong>
+          <p>Maksimalni dnevni prijenos u Arena layer.</p>
+        </article>
+        <article class="hero-kpi">
+          <small>House fee</small>
+          <strong>15%</strong>
+          <p>Uračunat u finalni payout prikaz.</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="arena-actions" id="arenaActions">
+      <button class="arena-action active" data-hero="football">Football</button>
+      <button class="arena-action" data-hero="basketball">Basketball</button>
+      <button class="arena-action" data-hero="mma">MMA</button>
+      <button class="arena-action" data-hero="esports">eSports</button>
+      <button class="arena-action">Live</button>
+      <button class="arena-action">Top Odds</button>
+      <button class="arena-action">Open Ticket</button>
+      <button class="arena-action">Season Picks</button>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap">
+  <div class="board-layout">
+    <article class="section-card">
+      <div class="section-head">
+        <div>
+          <h2>Ponuda</h2>
+          <p>Odaberi sport i dodaj markete na slip bez dodatnog cluttera.</p>
+        </div>
+        <div class="badge">1 • X • 2 • +3.5</div>
+      </div>
+
+      <div class="filter-row" id="filterRow">
+        <button class="filter-chip active" data-filter="football">Nogomet</button>
+        <button class="filter-chip" data-filter="basketball">Košarka</button>
+        <button class="filter-chip" data-filter="ufc">MMA</button>
+        <button class="filter-chip" data-filter="esports">eSports</button>
+      </div>
+
+      <div class="events-stack" id="eventList"></div>
+      <div class="odds-note">Klik na market odmah dodaje par na aktivni slip. Maksimalno 6 odabira po tiketu.</div>
+    </article>
+
+    <aside class="slip-card">
+      <div class="slip-head">
+        <div class="slip-title">
+          <small>Active slip</small>
+          <h3>Open ticket</h3>
+        </div>
+        <div class="slip-badge" id="ticketPairs">0 parova</div>
+      </div>
+
+      <div class="slip-paper">
+        <div class="slip-paper-head">
+          <strong>Vendetta Arena</strong>
+          
+        </div>
+
+        <div class="ticket-list" id="ticketList">
+          <div class="ticket-empty">
+            <strong>Tvoj tiket čeka odabir</strong>
+            
+          </div>
+        </div>
+
+        <div class="slip-paper-foot">
+          <p>Jednostavan slip izgled bez napadnih boja, s fokusom na čitljivost i brz odabir.</p>
+        </div>
+      </div>
+
+      <div class="wallet-transfer">
+        <div>
+          <small>Arena transfer</small>
+          <strong>Jedan prijenos dnevno iz glavnog walleta</strong>
+          <p>Maksimalno 10 V u 24 sata. U ovom demo slipu transfer gumb prebacuje 2.50 V.</p>
+        </div>
+        <button class="cta" id="transferToArena">Prebaci 2.50 V</button>
+      </div>
+
+      <div class="stake-shell">
+        <small>Stake</small>
+        <div class="stake-line"><strong>Ulog</strong><span id="stakeValue">2.50 V</span></div>
+        <input id="stakeRange" type="range" min="1" max="10" step="0.5" value="2.5"/>
+      </div>
+
+      <div class="ticket-meta-grid">
+        <div class="meta-card">
+          <small>Kombinirani koef.</small>
+          <strong id="comboOdds">1.00</strong>
+          <p>Bruto zbroj odabranih marketa.</p>
+        </div>
+        <div class="meta-card">
+          <small>House fee</small>
+          <strong>15%</strong>
+          <p>Automatski uključen u payout.</p>
+        </div>
+        <div class="meta-card">
+          <small>Potencijalni payout</small>
+          <strong id="payoutValue">2.13 V</strong>
+          <p>Neto isplata nakon fee-a.</p>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <button class="cta primary" id="submitTicket">Zaključi tiket</button>
+        <a class="cta" href="battlepass.html">Arena daje XP</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section-wrap">
+  <div class="grid-2">
+    <article class="section-card">
+      <div class="section-head">
+        <div>
+          <h2>Risk okvir</h2>
+          <p>Pravila ostaju čista i vidljiva, bez admin nereda i bez previše teksta.</p>
+        </div>
+      </div>
+      <div class="reward-list">
+        <div class="reward-row"><div><strong>Daily user net cap</strong><p>Maks +30 V po danu.</p></div><span>Pravilo</span><span>30 V</span></div>
+        <div class="reward-row"><div><strong>Arena wallet transfer</strong><p>Max 10 V u 24h iz glavnog walleta.</p></div><span>Pravilo</span><span>10 V</span></div>
+        <div class="reward-row"><div><strong>Payout cap</strong><p>Maks 20x u demo modelu.</p></div><span>Pravilo</span><span>20x</span></div>
+      </div>
+    </article>
+
+    <article class="section-card">
+      <div class="section-head">
+        <div>
+          <h2>Settled history</h2>
+          <p>History ostaje uredan i povezan s Battle Pass zadatkom “složi 1 Arena ticket”.</p>
+        </div>
+        <div class="badge" id="historyBadge">3 settlea</div>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-row"><div><strong>Barcelona + Inter + G2</strong><p>Featured mix / jučer</p></div><span>Win</span><span>+12.58 V</span></div>
+        <div class="history-row"><div><strong>NAVI + T1</strong><p>Esports slip</p></div><span>Loss</span><span>-2.00 V</span></div>
+        <div class="history-row"><div><strong>Real + Over combo</strong><p>Football slip</p></div><span>Win</span><span>+4.82 V</span></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<footer>V-Game V2 • Arena slip polish pass / bookmaker-style board.</footer>
+<script src="assets/vendetta-sync.js"></script>
+<script>
+(() => {
+  const LS_W='vendetta-wallet-state';
+  const LS_A='vendetta-arena-state';
+  const eventList=document.getElementById('eventList');
+  const ticketList=document.getElementById('ticketList');
+  const stakeRange=document.getElementById('stakeRange');
+  const stakeValue=document.getElementById('stakeValue');
+  const comboOdds=document.getElementById('comboOdds');
+  const payoutValue=document.getElementById('payoutValue');
+  const ticketPairs=document.getElementById('ticketPairs');
+  const arWallet=document.getElementById('arWallet');
+  const mainWalletCard=document.getElementById('mainWalletCard');
+  const mainWalletHeader=document.getElementById('mainWalletHeader');
+  const arenaWalletHeader=document.getElementById('arenaWalletHeader');
+  const historyList=document.getElementById('historyList');
+  const historyBadge=document.getElementById('historyBadge');
+  const transferBtn=document.getElementById('transferToArena');
+  const transferState=document.getElementById('transferState');
+  const filterButtons=[...document.querySelectorAll('.filter-chip')];
+  const heroActions=[...document.querySelectorAll('.arena-action[data-hero]')];
+  const heroSlides=[...document.querySelectorAll('.arena-slide')];
+
+  const DATA={
+    football:[
+      {home:'BAR',away:'RMA',name:'Barcelona vs Real Madrid',league:'La Liga • večernji derbi',odds:{'1':1.92,'X':3.40,'2':2.24,'+3.5':2.58}},
+      {home:'INT',away:'MIL',name:'Inter vs Milan',league:'Serie A • gradski derbi',odds:{'1':1.74,'X':3.10,'2':2.66,'+3.5':2.18}},
+      {home:'MCI',away:'ARS',name:'Manchester City vs Arsenal',league:'Premier League • title race',odds:{'1':1.84,'X':3.32,'2':2.48,'+3.5':2.34}},
+      {home:'BAY',away:'BVB',name:'Bayern vs Dortmund',league:'Bundesliga • Klassiker',odds:{'1':1.66,'X':3.62,'2':3.20,'+3.5':2.22}},
+      {home:'LIV',away:'CHE',name:'Liverpool vs Chelsea',league:'Premier League • Anfield',odds:{'1':1.78,'X':3.28,'2':2.82,'+3.5':2.30}},
+      {home:'PSG',away:'OM',name:'PSG vs Marseille',league:'Ligue 1 • Le Classique',odds:{'1':1.58,'X':3.88,'2':3.66,'+3.5':2.08}},
+      {home:'ATM',away:'SEV',name:'Atletico Madrid vs Sevilla',league:'La Liga • tactical game',odds:{'1':1.72,'X':3.16,'2':2.94,'+3.5':2.20}},
+      {home:'BEN',away:'POR',name:'Benfica vs Porto',league:'Primeira Liga • big match',odds:{'1':1.90,'X':3.08,'2':2.36,'+3.5':2.46}},
+      {home:'CEL',away:'RAN',name:'Celtic vs Rangers',league:'Scotland • Old Firm',odds:{'1':1.86,'X':3.26,'2':2.44,'+3.5':2.38}},
+      {home:'AJX',away:'PSV',name:'Ajax vs PSV',league:'Eredivisie • featured',odds:{'1':2.16,'X':3.44,'2':1.94,'+3.5':2.16}}
+    ],
+    basketball:[
+      {home:'LAL',away:'BOS',name:'Lakers vs Celtics',league:'NBA • primetime',odds:{'1':2.04,'X':8.50,'2':1.78,'+3.5':1.92}},
+      {home:'DEN',away:'PHX',name:'Denver vs Phoenix',league:'NBA • western clash',odds:{'1':1.82,'X':8.00,'2':1.96,'+3.5':1.86}},
+      {home:'MIL',away:'MIA',name:'Bucks vs Heat',league:'NBA • East spotlight',odds:{'1':1.74,'X':8.40,'2':2.08,'+3.5':1.90}},
+      {home:'PAR',away:'RMB',name:'Partizan vs Real Madrid',league:'Euroleague • night game',odds:{'1':2.12,'X':10.00,'2':1.70,'+3.5':1.96}},
+      {home:'PAN',away:'OLY',name:'Panathinaikos vs Olympiacos',league:'Euroleague • derby',odds:{'1':1.88,'X':9.40,'2':1.90,'+3.5':1.84}}
+    ],
+    ufc:[
+      {home:'ASP',away:'JON',name:'Aspinall vs Jones',league:'UFC • heavyweight',odds:{'1':1.94,'X':12.00,'2':1.86,'+3.5':2.10}},
+      {home:'ISL',away:'DDP',name:'Adesanya vs du Plessis',league:'UFC • middleweight',odds:{'1':2.02,'X':12.00,'2':1.80,'+3.5':2.04}},
+      {home:'LEO',away:'VOL',name:'Leon Edwards vs Volkanovski',league:'UFC • super fight',odds:{'1':1.76,'X':12.00,'2':2.06,'+3.5':1.98}},
+      {home:'OMA',away:'MER',name:'O\'Malley vs Merab',league:'UFC • bantamweight',odds:{'1':2.18,'X':12.00,'2':1.68,'+3.5':1.92}}
+    ],
+    esports:[
+      {home:'G2',away:'FNC',name:'G2 vs Fnatic',league:'LoL • featured rivalry',odds:{'1':1.62,'X':4.40,'2':2.28,'+3.5':1.94}},
+      {home:'NAV',away:'FAZ',name:'NAVI vs FaZe',league:'CS2 • map market',odds:{'1':1.88,'X':3.70,'2':2.05,'+3.5':2.42}},
+      {home:'T1',away:'GEN',name:'T1 vs Gen.G',league:'LoL • LCK finals feel',odds:{'1':2.12,'X':4.80,'2':1.78,'+3.5':2.02}},
+      {home:'TL',away:'VIT',name:'Team Liquid vs Vitality',league:'CS2 • upper bracket',odds:{'1':2.00,'X':3.90,'2':1.84,'+3.5':2.16}}
+    ]
+  };
+
+  let heroIndex=0;
+  function setHeroSlide(key){
+    heroSlides.forEach(slide=>slide.classList.toggle('active', slide.dataset.slide===key));
+    heroActions.forEach(btn=>btn.classList.toggle('active', btn.dataset.hero===key));
+    const map={football:'football',basketball:'basketball',mma:'mma',esports:'esports'};
+    if(map[key]) activeFilter = key==='mma' ? 'ufc' : key;
+  }
+  heroActions.forEach(btn=>btn.addEventListener('click',()=>{
+    setHeroSlide(btn.dataset.hero);
+    renderEvents();
+    filterButtons.forEach(chip=>chip.classList.toggle('active', chip.dataset.filter=== (btn.dataset.hero==='mma' ? 'ufc' : btn.dataset.hero)));
+  }));
+  setInterval(()=>{
+    const order=['football','basketball','mma','esports'];
+    heroIndex=(heroIndex+1)%order.length;
+    const next=order[heroIndex];
+    setHeroSlide(next);
+  }, 5200);
+
+  let activeFilter='football';
+  const picks=[];
+  let walletState={};
+  try{ walletState=JSON.parse(localStorage.getItem(LS_W)||'{}') }catch(e){}
+  let mainWallet=typeof walletState.balance==='number'?walletState.balance:8.4537;
+  let arenaState={};
+  try{ arenaState=JSON.parse(localStorage.getItem(LS_A)||'{}') }catch(e){}
+  let wallet=typeof arenaState.balance==='number'?arenaState.balance:2.40;
+  let lastTransfer=arenaState.lastTransfer||0;
+
+  function save(){
+    localStorage.setItem(LS_W, JSON.stringify({balance:mainWallet,ts:Date.now()}));
+    localStorage.setItem(LS_A, JSON.stringify({balance:wallet,lastTransfer}));
+  }
+  function canTransfer(){ return !lastTransfer || (Date.now()-lastTransfer)>86400000; }
+
+  function renderBalances(){
+    arWallet.textContent=wallet.toFixed(4)+' V';
+    arenaWalletHeader.textContent=wallet.toFixed(4);
+    mainWalletCard.textContent=mainWallet.toFixed(4)+' V';
+    mainWalletHeader.textContent=mainWallet.toFixed(4);
+    transferState.textContent=canTransfer()?'Dostupan':'Iskorišten';
+    transferBtn.disabled=!canTransfer();
+    transferBtn.style.opacity=canTransfer()?'1':'.55';
+    save();
+  }
+
+  function renderEvents(){
+    const items=DATA[activeFilter] || [];
+    eventList.innerHTML=items.map((match,idx)=>`
+      <div class="market-row">
+        <div class="match-side">
+          <div class="club-icons">
+            <div class="club-badge">${match.home}</div>
+            <div class="versus">vs</div>
+            <div class="club-badge">${match.away}</div>
+          </div>
+          <div class="match-meta">
+            <strong>${match.name}</strong>
+            <p>${match.league}</p>
+            <div class="match-tag">${activeFilter === 'football' ? 'Football' : activeFilter === 'basketball' ? 'Basketball' : activeFilter === 'ufc' ? 'Fight card' : 'Esports'}</div>
+          </div>
+        </div>
+        <div class="market-odds">
+          ${Object.entries(match.odds).map(([market,odds])=>`
+            <button class="odd-btn ${isPicked(match.name, market) ? 'is-picked' : ''}" data-name="${match.name}" data-market="${market}" data-odds="${odds}">
+              <b>${market}</b><span>${Number(odds).toFixed(2)}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+    document.querySelectorAll('.odd-btn').forEach(btn=>btn.addEventListener('click',()=>togglePick(btn.dataset.name, btn.dataset.market, Number(btn.dataset.odds))));
+  }
+
+  function isPicked(name, market){ return picks.some(p => p.name===name && p.market===market); }
+
+  function togglePick(name, market, odds){
+    const idx = picks.findIndex(p => p.name===name && p.market===market);
+    if(idx > -1){
+      picks.splice(idx,1);
+    }else{
+      if(picks.length >= 6) return;
+      picks.push({name, market, odds});
+    }
+    renderEvents();
+    renderTicket();
+  }
+
+  function renderTicket(){
+    if(!picks.length){
+      ticketList.innerHTML=`<div class="ticket-empty"><strong>Tvoj tiket čeka odabir</strong></div>`;
+    }else{
+      ticketList.innerHTML=picks.map((p,i)=>`
+        <div class="ticket-row">
+          <div>
+            <strong>${p.name}</strong>
+            <p>Odabir #${i+1}</p>
+          </div>
+          <span class="ticket-market">${p.market}</span>
+          <span class="ticket-odds">${p.odds.toFixed(2)}</span>
+        </div>
+      `).join('');
+    }
+    const stake=Number(stakeRange.value);
+    const rawOdds=picks.reduce((acc,p)=>acc*p.odds,1);
+    const adjusted=rawOdds*0.85;
+    comboOdds.textContent=rawOdds.toFixed(2);
+    payoutValue.textContent=(stake*adjusted).toFixed(2)+' V';
+    stakeValue.textContent=stake.toFixed(2)+' V';
+    ticketPairs.textContent=`${picks.length} ${picks.length===1?'par':'parova'}`;
+  }
+
+  filterButtons.forEach(btn=>btn.addEventListener('click',()=>{
+    filterButtons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter=btn.dataset.filter;
+    const heroKey = btn.dataset.filter === 'ufc' ? 'mma' : btn.dataset.filter;
+    heroSlides.forEach(slide=>slide.classList.toggle('active', slide.dataset.slide===heroKey));
+    heroActions.forEach(action=>action.classList.toggle('active', action.dataset.hero===heroKey));
+    renderEvents();
+  }));
+
+  stakeRange.addEventListener('input', renderTicket);
+
+  transferBtn.addEventListener('click',()=>{
+    const amount=2.5;
+    if(!canTransfer()) return;
+    if(mainWallet < amount){ transferState.textContent='Premalo V'; return; }
+    mainWallet -= amount; wallet += amount; lastTransfer=Date.now();
+    transferState.textContent='Prebačeno';
+    renderBalances();
+  });
+
+  document.getElementById('submitTicket').addEventListener('click',()=>{
+    const stake=Number(stakeRange.value);
+    if(picks.length < 2){ ticketPairs.textContent='Min 2 para'; return; }
+    if(wallet < stake){ ticketPairs.textContent='Premalo Arena V'; return; }
+    const adjusted=picks.reduce((acc,p)=>acc*p.odds,1)*0.85;
+    const payout=(stake*adjusted).toFixed(2);
+    wallet -= stake;
+    renderBalances();
+    const row=document.createElement('div');
+    row.className='history-row';
+    row.innerHTML=`<div><strong>${picks.map(p=>p.name.split(' vs ')[0]).join(' + ')}</strong><p>Novi aktivni slip</p></div><span>Open</span><span>${payout} V</span>`;
+    historyList.prepend(row);
+    [...historyList.children].slice(4).forEach(n=>n.remove());
+    historyBadge.textContent=historyList.children.length+' settlea';
+    picks.splice(0,picks.length);
+    renderEvents();
+    renderTicket();
+  });
+
+  renderBalances();
+  renderEvents();
+  renderTicket();
+})();
+</script>
+</body>
+</html>

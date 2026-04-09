@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendetta — Rewards V3.4</title>
+  <link rel="stylesheet" href="assets/vendetta-sync.css" />
+  <style>
+    :root{
+      --green:#8cff86;
+      --green-glow:rgba(140,255,134,.42);
+      --gold:#f0c974;
+      --text:#edf4ec;
+      --muted:rgba(237,244,236,.70);
+      --line:rgba(255,255,255,.08);
+      --line-2:rgba(255,255,255,.12);
+      --panel:linear-gradient(180deg, rgba(14,18,15,.90), rgba(9,12,10,.94));
+      --panel-soft:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
+      --shadow:0 24px 70px rgba(0,0,0,.34);
+      --radius:26px;
+      --max:1480px;
+      --space-xl:110px;
+      --space-lg:34px;
+      --space-md:20px;
+      --space-sm:12px;
+      --ease:280ms cubic-bezier(.22,1,.36,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Inter,Arial,Helvetica,sans-serif;
+      color:var(--text);
+      line-height:1.6;
+      overflow-x:hidden;
+      background:transparent!important;
+      min-height:100vh;
+    }
+    body.theme-nuclear{--green:#8cff86;--green-glow:rgba(140,255,134,.42)}
+    body.theme-solar{--green:#f0c974;--green-glow:rgba(240,201,116,.36)}
+    body.theme-inferno{--green:#ff6b57;--green-glow:rgba(255,107,87,.34)}
+    body.theme-void{--green:#9b84ff;--green-glow:rgba(155,132,255,.38)}
+
+    .kinetic-title{background:linear-gradient(90deg,#ffffff 0%, #dff5de 22%, color-mix(in srgb,var(--green) 86%, #fff) 48%, #f0c974 74%, #ffffff 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:kineticShift 9s linear infinite;text-shadow:none}
+    .liquid-glass{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.10);box-shadow:0 26px 60px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(18px)}
+    a{color:inherit;text-decoration:none}
+
+    .global-video-bg{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden;background:#030403}
+    .global-video-media{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.02) contrast(1.03) brightness(.46);transform:scale(1.04)}
+    .global-video-scrim{position:absolute;inset:0;background:
+      radial-gradient(circle at 50% 8%, rgba(255,255,255,.05), transparent 22%),
+      linear-gradient(180deg, rgba(5,7,5,.58) 0%, rgba(4,5,4,.72) 32%, rgba(3,4,3,.90) 100%)}
+
+    header{position:sticky;top:0;z-index:100;background:rgba(5,7,5,.56)!important;backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 18px 44px rgba(0,0,0,.22)}
+    .header-inner{display:flex!important;align-items:center;justify-content:space-between;gap:clamp(24px,3vw,56px)!important;min-height:96px!important;padding:18px 40px!important}
+    .brand{display:flex;align-items:center;flex:0 0 auto;margin-right:clamp(8px,1.8vw,28px)}
+    .brand-link img{width:112px;height:auto;display:block;filter:drop-shadow(0 0 24px rgba(255,255,255,.12)) drop-shadow(0 0 24px var(--green-glow))}
+    nav{flex:1 1 auto;display:flex;justify-content:center!important;align-items:center;gap:clamp(18px,2vw,42px)!important;padding:0 clamp(10px,2vw,36px);flex-wrap:nowrap!important}
+    nav a{color:#ccd4cc;text-transform:uppercase;position:relative;font-size:10.8px;letter-spacing:.22em;font-weight:500;padding:18px 0!important;white-space:nowrap}
+    nav a:hover,nav a.active{color:var(--green)}
+    nav a.active::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:var(--green);border-radius:50%;box-shadow:0 0 12px var(--green-glow)}
+    .top-right{display:flex;align-items:center;gap:16px!important;justify-self:end;margin-left:clamp(8px,1.5vw,24px)!important;position:relative;flex:0 0 auto}
+    .wallet-box{min-height:44px;padding:0 18px;display:inline-flex;align-items:center;gap:8px;border-radius:9999px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(14,17,14,.96),rgba(9,11,9,.98));box-shadow:0 0 26px rgba(196,170,99,.18),inset 0 1px 0 rgba(255,255,255,.05),0 0 30px rgba(240,212,138,.08);white-space:nowrap}
+    .wallet-mark,.wallet-value{background:linear-gradient(90deg,#c4aa63 0%,#f0d48a 28%,#eef3ff 52%,#d6dee8 72%,#c4aa63 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+    .wallet-value{font-size:31px;letter-spacing:-.04em}
+    .wallet-mark{font-size:18px}
+    .icon{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);display:grid;place-items:center;color:#e7ece7;font-size:13px;cursor:pointer}
+
+    .page-shell,.section-wrap,footer{max-width:var(--max);margin:0 auto;padding-left:42px;padding-right:42px;position:relative;z-index:1}
+    .page-shell{padding-top:128px}
+    .page-kicker{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.52);margin-bottom:16px}
+    .page-title{font-size:clamp(60px,7.4vw,104px);line-height:.90;letter-spacing:-.075em;text-transform:uppercase}
+    .page-copy{margin-top:16px;max-width:860px;color:var(--muted);font-size:18px}
+    .page-copy strong{color:#fff;font-weight:700}
+
+    .section-wrap{margin-top:calc(var(--space-xl) + 10px)}
+    .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:24px;flex-wrap:wrap}
+    .section-head h2{font-size:clamp(28px,3.3vw,40px);line-height:.95;letter-spacing:-.04em;text-transform:uppercase}
+    .section-head p{max-width:820px;color:var(--muted)}
+
+    .panel,.mini-panel,.selector-card,.sim-card,.forge-card,.crate-slot,.crate-item,.history-dropdown{border:1px solid rgba(255,255,255,.10);background:linear-gradient(180deg, rgba(14,18,15,.90), rgba(9,12,10,.94));box-shadow:0 26px 60px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(18px)}
+    .kpi-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:40px}
+    .kpi-card{min-height:94px;padding:18px 20px;border-radius:24px;border:1px solid rgba(255,255,255,.10);background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025));box-shadow:0 22px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(18px)}
+    .kpi-card small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,.55);margin-bottom:10px}
+    .kpi-card strong{display:block;font-size:30px;line-height:1;color:#fff}
+    .kpi-card p{margin-top:6px;font-size:13px;color:rgba(255,255,255,.58)}
+    .recent-card{position:relative;cursor:pointer}
+    .recent-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .history-dropdown{position:absolute;left:0;right:0;top:calc(100% + 10px);padding:10px;border-radius:18px;display:none;z-index:15;background:linear-gradient(180deg, rgba(15,19,16,.98), rgba(8,11,9,.99))}
+    .recent-card.open .history-dropdown{display:grid;gap:8px}
+    .history-item{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);font-size:13px;color:#dbe5db}
+
+    .crate-groups{display:grid;gap:26px}
+    .crate-group{padding:22px;border-radius:28px}
+    .crate-group-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px;flex-wrap:wrap}
+    .crate-group-head h3{font-size:18px;text-transform:uppercase;letter-spacing:.06em}
+    .crate-group-head span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.18em}
+    .crate-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+    .crate-item{min-height:132px;border-radius:24px;padding:10px;background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform var(--ease),border-color var(--ease),box-shadow var(--ease),opacity var(--ease);opacity:.90;backdrop-filter:blur(16px)}
+    .crate-item:hover,.crate-item.active{transform:translateY(-4px);border-color:rgba(255,255,255,.16);box-shadow:0 0 26px var(--green-glow),0 22px 42px rgba(0,0,0,.26);opacity:1}
+    .crate-item img{width:74px;height:74px;object-fit:contain;filter:drop-shadow(0 0 16px rgba(255,255,255,.08)) drop-shadow(0 0 18px var(--green-glow));pointer-events:none}
+    .crate-item strong{font-size:11px;line-height:1.2;text-transform:uppercase;letter-spacing:.11em;text-align:center}
+    .crate-item span{font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.16em}
+
+    .selector-wrap{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+    .selector-card{padding:26px;border-radius:28px}
+    .selector-head{margin-bottom:22px}
+    .selector-head h2{font-size:clamp(28px,3vw,42px);line-height:.94;text-transform:uppercase;letter-spacing:-.05em}
+    .selector-head p{margin-top:10px;max-width:720px;color:var(--muted)}
+    .choose-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:14px}
+    .crate-slot{min-height:100px;border-radius:18px;padding:10px;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease)}
+    .crate-slot:hover,.crate-slot.active{transform:translateY(-3px);border-color:rgba(255,255,255,.16);box-shadow:0 0 22px var(--green-glow),0 18px 38px rgba(0,0,0,.24)}
+    .crate-slot img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(255,255,255,.08)) drop-shadow(0 0 12px var(--green-glow))}
+    .crate-slot b{font-size:10px;text-transform:uppercase;letter-spacing:.13em;text-align:center}
+    .crate-slot em{font-style:normal;font-size:9px;letter-spacing:.16em;color:rgba(255,255,255,.48);text-transform:uppercase}
+
+    .preview-panel{padding:26px;border-radius:32px;min-height:100%;position:sticky;top:118px}
+    .preview-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}
+    .preview-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,.52);margin-bottom:7px;display:block}
+    .preview-title{font-size:30px;line-height:.95;letter-spacing:-.04em;text-transform:uppercase}
+    .preview-rarity{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--green)}
+    .preview-stage{position:relative;height:360px;display:flex;align-items:center;justify-content:center;margin:18px 0 22px}
+    .preview-glow{position:absolute;width:390px;height:390px;border-radius:50%;background:radial-gradient(circle, color-mix(in srgb, var(--green) 28%, transparent), transparent 68%);filter:blur(22px);animation:glowPulse 2.8s ease-in-out infinite}
+    .preview-image{position:relative;z-index:1;max-height:290px;max-width:100%;object-fit:contain;filter:drop-shadow(0 0 18px rgba(255,255,255,.1)) drop-shadow(0 0 26px var(--green-glow)) drop-shadow(0 34px 52px rgba(0,0,0,.38));animation:floatCrate 4.2s ease-in-out infinite}
+    .preview-copy{color:var(--muted);font-size:14px}
+    .preview-drops{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+    .preview-drops li{list-style:none;min-height:44px;padding:0 12px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);display:flex;align-items:center;font-size:13px}
+    .preview-button{min-height:48px;padding:0 18px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg, color-mix(in srgb,var(--green) 20%, transparent), rgba(10,12,10,.98));color:#fff;cursor:pointer;text-transform:uppercase;letter-spacing:.10em;font-weight:700;box-shadow:0 0 18px var(--green-glow);transition:transform var(--ease),box-shadow var(--ease)}
+    .preview-button:hover{transform:translateY(-2px);box-shadow:0 0 24px var(--green-glow),0 14px 24px rgba(0,0,0,.25)}
+
+    .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+    .sim-card,.forge-card{padding:28px;border-radius:32px;min-height:560px}
+    .panel-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+    .panel-head h3{font-size:24px;line-height:.96;text-transform:uppercase;letter-spacing:-.03em}
+    .panel-head p{max-width:520px;color:var(--muted);font-size:14px}
+    .panel-badge{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+    .sim-stage,.forge-stage{position:relative;height:310px;border-radius:28px;border:1px solid rgba(255,255,255,.10);background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+    .sim-stage::before,.forge-stage::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 20%, color-mix(in srgb,var(--green) 14%, transparent), transparent 26%);pointer-events:none}
+    .sim-stage img{max-height:240px;max-width:100%;object-fit:contain;filter:drop-shadow(0 0 20px var(--green-glow)) drop-shadow(0 38px 52px rgba(0,0,0,.35));animation:floatCrate 4s ease-in-out infinite}
+    .sim-ring{position:absolute;width:310px;height:310px;border-radius:50%;border:1px solid rgba(255,255,255,.05);box-shadow:0 0 0 20px rgba(255,255,255,.012),0 0 0 40px rgba(255,255,255,.008);animation:spin 14s linear infinite}
+    .sim-copy,.forge-copy{margin-top:18px;color:var(--muted);font-size:14px}
+    .forge-slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:22px}
+    .forge-piece{min-height:88px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:8px}
+    .forge-piece strong{font-size:10px;letter-spacing:.15em;text-transform:uppercase}
+    .forge-piece span{font-size:12px;color:rgba(255,255,255,.62)}
+    .forge-action{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px}
+    .forge-btn,.ghost-btn{min-height:46px;padding:0 16px;border-radius:14px;border:1px solid rgba(255,255,255,.12);cursor:pointer;text-transform:uppercase;letter-spacing:.10em;font-weight:700}
+    .forge-btn{background:linear-gradient(180deg, color-mix(in srgb,var(--green) 20%, transparent), rgba(10,12,10,.98));color:#fff;box-shadow:0 0 18px var(--green-glow)}
+    .ghost-btn{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));color:#edf4ec}
+    .forge-log{margin-top:18px;padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03)}
+    .forge-log small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,.52);margin-bottom:8px}
+    .forge-log strong{display:block;font-size:24px;line-height:1.05;margin-bottom:8px}
+    .forge-log p{color:var(--muted);font-size:14px}
+
+    footer{padding-top:32px;padding-bottom:54px;margin-top:96px;color:rgba(255,255,255,.48);font-size:13px}
+
+    @keyframes floatCrate{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+    @keyframes glowPulse{0%,100%{transform:scale(.96);opacity:.78}50%{transform:scale(1.04);opacity:1}}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+    @media (max-width:1280px){
+      .crate-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .choose-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+    }
+    @media (max-width:1100px){
+      .header-inner{flex-wrap:wrap;justify-content:center}
+      nav{order:3;width:100%;overflow-x:auto;justify-content:flex-start!important;padding-bottom:2px}
+      .top-right{margin-left:0!important}
+      .kpi-bar,.selector-wrap,.bottom-grid{grid-template-columns:1fr 1fr}
+      .selector-wrap{grid-template-columns:1fr}
+      .preview-panel{position:relative;top:auto}
+    }
+    @media (max-width:820px){
+      .page-shell,.section-wrap,footer{padding-left:18px;padding-right:18px}
+      .kpi-bar,.bottom-grid{grid-template-columns:1fr}
+      .crate-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .choose-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .preview-drops{grid-template-columns:1fr}
+      .forge-slots{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+  
+
+  /* === V-COIN balance refresh / liquid glass 2026 === */
+  .top-right{align-items:center;gap:12px!important}
+  .wallet-box,.wallet{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    min-height:46px;
+    padding:0 14px 0 13px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.08)!important;
+    background:linear-gradient(180deg, rgba(22,28,27,.34), rgba(10,13,12,.46))!important;
+    box-shadow:0 10px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08), 0 0 22px color-mix(in srgb, var(--accent, var(--green, #8cff86)) 12%, transparent)!important;
+    backdrop-filter:blur(18px) saturate(1.18);
+    -webkit-backdrop-filter:blur(18px) saturate(1.18);
+    overflow:hidden;
+  }
+  .wallet-box::before,.wallet::before{
+    content:"";
+    position:absolute;
+    inset:1px;
+    border-radius:inherit;
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.025) 38%, rgba(255,255,255,.01));
+    opacity:.6;
+    pointer-events:none;
+  }
+  .wallet-box::after,.wallet::after{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    border-radius:inherit;
+    background:radial-gradient(circle at 18% 16%, rgba(255,255,255,.13), transparent 26%), radial-gradient(circle at 82% 130%, color-mix(in srgb, var(--accent, var(--green, #8cff86)) 15%, transparent), transparent 38%);
+    opacity:.85;
+    pointer-events:none;
+  }
+  .wallet-mark,.wallet .mark{
+    position:relative;
+    z-index:1;
+    font-size:13px!important;
+    font-weight:800;
+    letter-spacing:.04em;
+    color:rgba(245,248,245,.9)!important;
+    background:none!important;
+    -webkit-text-fill-color:initial!important;
+    text-shadow:0 0 18px color-mix(in srgb, var(--accent, var(--green, #8cff86)) 20%, transparent);
+  }
+  .wallet-value,.wallet .value{
+    position:relative;
+    z-index:1;
+    font-size:17px!important;
+    font-weight:700;
+    letter-spacing:-.03em;
+    color:#edf3ee!important;
+    background:none!important;
+    -webkit-text-fill-color:initial!important;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 18px rgba(255,255,255,.06);
+  }
+  .wallet-box:hover,.wallet:hover{
+    transform:translateY(-1px);
+    border-color:rgba(255,255,255,.12)!important;
+    box-shadow:0 14px 34px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.1), 0 0 28px color-mix(in srgb, var(--accent, var(--green, #8cff86)) 18%, transparent)!important;
+  }
+  .arena-wallet{
+    background:linear-gradient(180deg, rgba(22,24,29,.34), rgba(10,12,16,.48))!important;
+    opacity:.94;
+  }
+  @media (max-width:900px){
+    .wallet-box,.wallet{min-height:42px;padding:0 12px;gap:8px}
+    .wallet-value,.wallet .value{font-size:15px!important}
+    .wallet-mark,.wallet .mark{font-size:12px!important}
+  }
+
+</style>
+</head>
+<body class="theme-nuclear">
+  <div class="global-video-bg" aria-hidden="true">
+    <video class="global-video-media" autoplay muted loop playsinline preload="auto">
+      <source src="global-bg.mp4" type="video/mp4" />
+    </video>
+    <div class="global-video-scrim"></div>
+  </div>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <a class="brand-link" href="index.html" aria-label="Vendetta Home"><img src="vendetta_logo_header_large.png" alt="Vendetta" /></a>
+      </div>
+      <nav>
+        <a href="battlepass.html">Battle Pass</a>
+        <a href="shop.html">Shop</a>
+        <a href="generator.html">Generator</a>
+        <a href="arena.html">Arena</a>
+        <a href="rewards.html" class="active">Rewards</a>
+      </nav>
+      <div class="top-right">
+        <div class="wallet-box"><span class="wallet-mark">V</span><span class="wallet-value">8.4537</span></div>
+        <div class="icon">HR</div>
+        <div class="icon">✦</div>
+        <div class="icon">⌾</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-shell">
+    <div class="page-kicker">Vendetta / Rewards</div>
+    <h1 class="page-title kinetic-title">Nagrade</h1>
+    <p class="page-copy">Otvori kutiju, želimo ti sreću — možda je novi <strong>PlayStation 5</strong> upravo tvoj.</p>
+
+    <div class="kpi-bar">
+      <article class="kpi-card">
+        <small>Balans</small>
+        <strong id="rwBalance">6.122 V</strong>
+        <p>Sve što user trenutno ima spremno za trošenje.</p>
+      </article>
+      <article class="kpi-card">
+        <small>Otvorene kutije danas</small>
+        <strong id="rwOpened">3</strong>
+        <p>Čist daily broj bez dodatnog šuma.</p>
+      </article>
+      <article class="kpi-card">
+        <small>Signature dijelovi</small>
+        <strong id="rwFragments">2 / 11</strong>
+        <p>Različiti artifacti mogu tražiti 3 ili 5 dijelova.</p>
+      </article>
+      <article class="kpi-card recent-card" id="recentCard">
+        <small>Najbolji recent drop</small>
+        <div class="recent-trigger">
+          <strong id="rwBest">Premium Hoodie</strong>
+          <span>▼</span>
+        </div>
+        <p>Klik otvara zadnjih 10 dropova.</p>
+        <div class="history-dropdown" id="historyDropdown"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section-wrap">
+    <div class="crate-groups panel liquid-glass" style="padding:32px;border-radius:34px;">
+      <div class="section-head" style="margin-bottom:10px;">
+        <div>
+          <h2>Sekcije crateova</h2>
+          <p>Priprema layouta za četiri reward linije. Sad je bitno da izgleda čisto, klikabilno i spremno za assete koje ćemo dodavati.</p>
+        </div>
+      </div>
+
+      <div class="crate-group mini-panel">
+        <div class="crate-group-head">
+          <h3>Sekcija crateova 1</h3>
+          <span>Ulazni i daily crateovi</span>
+        </div>
+        <div class="crate-row" id="group1"></div>
+      </div>
+
+      <div class="crate-group mini-panel">
+        <div class="crate-group-head">
+          <h3>Sekcija crateova 2</h3>
+          <span>Progression i premium path</span>
+        </div>
+        <div class="crate-row" id="group2"></div>
+      </div>
+
+      <div class="crate-group mini-panel">
+        <div class="crate-group-head">
+          <h3>Sekcija crateova 3</h3>
+          <span>Frakcijske i tematske kutije</span>
+        </div>
+        <div class="crate-row" id="group3"></div>
+      </div>
+
+      <div class="crate-group mini-panel">
+        <div class="crate-group-head">
+          <h3>Sekcija crateova 4</h3>
+          <span>Ultimate, tactical i pharaoh lane</span>
+        </div>
+        <div class="crate-row" id="group4"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-wrap">
+    <div class="selector-wrap">
+      <article class="selector-card liquid-glass">
+        <div class="selector-head">
+          <h2>Odaberi svoj crate</h2>
+          <p>Ovo je glavni dropdown/grid svih crateova koje korisnik može otvoriti. Za demo je dovoljno da mijenja preview, simulator i forge feel bez pravog backenda.</p>
+        </div>
+        <div class="choose-grid" id="chooseGrid"></div>
+      </article>
+
+      <article class="preview-panel panel liquid-glass">
+        <div class="preview-top">
+          <div>
+            <span class="preview-kicker">Choose your crate</span>
+            <div class="preview-title" id="previewTitle">Basic crate</div>
+          </div>
+          <div class="preview-rarity" id="previewRarity">Entry</div>
+        </div>
+        <div class="preview-stage">
+          <div class="preview-glow" id="previewGlow"></div>
+          <img class="preview-image" id="previewImage" src="basic krejt.png" alt="Basic crate" />
+        </div>
+        <p class="preview-copy" id="previewText">Osnovna daily kutija za retention, mali povrat i ulaz u širi rewards sustav.</p>
+        <ul class="preview-drops" id="previewDrops"></ul>
+        <button class="preview-button" id="previewButton">Pošalji u live opening simulator</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="section-wrap">
+    <div class="bottom-grid">
+      <article class="sim-card liquid-glass">
+        <div class="panel-head">
+          <div>
+            <h3>Live opening simulator</h3>
+            <p>Vizualni prikaz otvaranja kutije koju je user odabrao. Dovoljno je da za demo mijenja crate, tekst i reveal rezultat.</p>
+          </div>
+          <div class="panel-badge" id="simBadge">Ready</div>
+        </div>
+        <div class="sim-stage">
+          <div class="sim-ring"></div>
+          <img id="simImage" src="basic krejt.png" alt="Selected crate" />
+        </div>
+        <p class="sim-copy" id="simText">Odabrana kutija čeka preview otvaranja.</p>
+        <div class="forge-log" style="margin-top:18px;">
+          <small>Reveal rezultat</small>
+          <strong id="simResult">Klikni crate ili button iz preview panela</strong>
+          <p id="simResultText">Rewards demo mora dati dojam pravog reward reveala, bez da glumi backend logiku.</p>
+        </div>
+      </article>
+
+      <article class="forge-card liquid-glass">
+        <div class="panel-head">
+          <div>
+            <h3>Signature Artifact Forge</h3>
+            <p>Parallax / forge osjećaj za craftanje ključeva i artifacta. Ovdje user ubacuje dijelove, V-Coin i pokušava craft.</p>
+          </div>
+          <div class="panel-badge" id="forgeBadge">3D forge preview</div>
+        </div>
+        <div class="forge-stage">
+          <div class="preview-glow" style="width:260px;height:260px;"></div>
+          <img src="ultimate krejt.png" alt="Artifact forge core" style="max-height:180px;max-width:100%;object-fit:contain;filter:drop-shadow(0 0 18px var(--green-glow)) drop-shadow(0 30px 40px rgba(0,0,0,.35));animation:floatCrate 4.4s ease-in-out infinite;" />
+        </div>
+        <div class="forge-slots">
+          <div class="forge-piece"><strong>Key 1</strong><span>Ready</span></div>
+          <div class="forge-piece"><strong>Key 2</strong><span>Ready</span></div>
+          <div class="forge-piece"><strong>Part 1</strong><span>Artifact</span></div>
+          <div class="forge-piece"><strong>Part 2</strong><span>Artifact</span></div>
+          <div class="forge-piece"><strong>20 V</strong><span>Cost</span></div>
+        </div>
+        <div class="forge-action">
+          <button class="forge-btn" id="forgeTryBtn">Pokušaj craft</button>
+          <button class="ghost-btn" id="forgeAltBtn">Promijeni recept</button>
+        </div>
+        <div class="forge-log">
+          <small>Forge log</small>
+          <strong id="forgeLog">Forge čeka input</strong>
+          <p id="forgeText">Kasnije ubacujemo prave 3D ili parallax assete. Za sada je najbitnije da blok drži težinu, prostor i premium osjećaj.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer>Vendetta Rewards V3.4 demo bundle • clean layout, povećan spacing i priprema za crate assete, reveal i forge animacije.</footer>
+
+  <script src="assets/vendetta-sync.js"></script>
+  <script>
+    (() => {
+      const baseCrates = [
+        {
+          key:'basic', title:'Basic crate', tier:'Entry', price:'0.45 V', img:'basic krejt.png',
+          desc:'Osnovna daily kutija za retention, mali povrat i ulaz u širi rewards sustav.',
+          drops:['XP pulse','Mali V povrat','Basic cosmetic','Key fragment']
+        },
+        {
+          key:'fraction', title:'Fraction crate', tier:'Faction', price:'2.60 V', img:'fraction krejt.png',
+          desc:'Frakcijska kutija za identitet, themed rewarde i poseban seasonal feel.',
+          drops:['Faction banner','Rare frame','Faction fragment','Themed cosmetic']
+        },
+        {
+          key:'progression', title:'Progression crate', tier:'Progress', price:'1.80 V', img:'progression krejt.png',
+          desc:'Kutija fokusirana na BP XP, utility rewarde i progression push.',
+          drops:['Bonus XP','Tier pulse','Progress token','Utility reward']
+        },
+        {
+          key:'ultimate', title:'Ultimate crate', tier:'Ultra', price:'10.00 V', img:'ultimate krejt.png',
+          desc:'High-tier kutija za signature rewarde, artefakte i showcase dropove.',
+          drops:['Artifact core','Epic cosmetic','Premium merch','High-tier reward']
+        }
+      ];
+
+      const crateNames = [
+        'Basic', 'Premium', 'Fraction', 'Pharaoh', 'Tactical', 'Pulse', 'Drip', 'Urban',
+        'Core', 'Forge', 'Dominion', 'Solar', 'Void', 'Inferno', 'Nuclear', 'Guild',
+        'Arena', 'Streak', 'Elite', 'Legend', 'Rift', 'Titan', 'Artifact', 'Jackpot'
+      ];
+
+      const rewardHistory = [
+        'Premium Hoodie', 'Rare Frame', '0.40 V Return', 'Key Fragment', 'Artifact Part',
+        'Basic Cosmetic', 'Solar Banner', 'XP Burst', 'Epic Profile Skin', 'Arena Ticket'
+      ];
+
+      const groupTargets = ['group1','group2','group3','group4'];
+      const chooseGrid = document.getElementById('chooseGrid');
+      const historyDropdown = document.getElementById('historyDropdown');
+      const recentCard = document.getElementById('recentCard');
+      const rwBest = document.getElementById('rwBest');
+      const rwOpened = document.getElementById('rwOpened');
+      const rwBalance = document.getElementById('rwBalance');
+      const previewTitle = document.getElementById('previewTitle');
+      const previewRarity = document.getElementById('previewRarity');
+      const previewImage = document.getElementById('previewImage');
+      const previewText = document.getElementById('previewText');
+      const previewDrops = document.getElementById('previewDrops');
+      const simImage = document.getElementById('simImage');
+      const simText = document.getElementById('simText');
+      const simBadge = document.getElementById('simBadge');
+      const simResult = document.getElementById('simResult');
+      const simResultText = document.getElementById('simResultText');
+      const forgeLog = document.getElementById('forgeLog');
+      const forgeText = document.getElementById('forgeText');
+      let current = baseCrates[0];
+      let balance = 6.122;
+      let opened = 3;
+
+      function imageForIndex(i){
+        return baseCrates[i % baseCrates.length].img;
+      }
+      function tierForIndex(i){
+        return baseCrates[i % baseCrates.length].tier;
+      }
+      function descForIndex(i){
+        return baseCrates[i % baseCrates.length].desc;
+      }
+      function dropsForIndex(i){
+        return baseCrates[i % baseCrates.length].drops;
+      }
+
+      rewardHistory.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.textContent = item;
+        historyDropdown.appendChild(div);
+      });
+
+      recentCard.addEventListener('click', (e) => {
+        recentCard.classList.toggle('open');
+        e.stopPropagation();
+      });
+      document.addEventListener('click', () => recentCard.classList.remove('open'));
+
+      function buildMiniCard(name, idx, className='crate-item'){
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = className;
+        el.dataset.idx = idx;
+        el.innerHTML = `<img src="${imageForIndex(idx)}" alt="${name}"><strong>${name} crate</strong><span>${tierForIndex(idx)}</span>`;
+        el.addEventListener('click', () => selectCrate(idx, className));
+        return el;
+      }
+
+      groupTargets.forEach((id, groupIndex) => {
+        const wrap = document.getElementById(id);
+        for(let i = 0; i < 6; i++){
+          const idx = groupIndex * 6 + i;
+          wrap.appendChild(buildMiniCard(crateNames[idx], idx, 'crate-item'));
+        }
+      });
+
+      crateNames.forEach((name, idx) => {
+        const slot = document.createElement('button');
+        slot.type = 'button';
+        slot.className = 'crate-slot';
+        slot.dataset.idx = idx;
+        slot.innerHTML = `<img src="${imageForIndex(idx)}" alt="${name}"><b>${name}</b><em>${tierForIndex(idx)}</em>`;
+        slot.addEventListener('click', () => selectCrate(idx, 'crate-slot'));
+        chooseGrid.appendChild(slot);
+      });
+
+      function selectCrate(idx, sourceClass){
+        current = {
+          key: crateNames[idx].toLowerCase().replace(/\s+/g,'-'),
+          title: crateNames[idx] + ' crate',
+          tier: tierForIndex(idx),
+          price: [0.45,0.80,1.20,1.80,2.60,4.00,10.00,12.00][idx % 8].toFixed(2) + ' V',
+          img: imageForIndex(idx),
+          desc: descForIndex(idx),
+          drops: dropsForIndex(idx)
+        };
+
+        document.querySelectorAll('.crate-item, .crate-slot').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll(`[data-idx="${idx}"]`).forEach(el => el.classList.add('active'));
+
+        previewTitle.textContent = current.title;
+        previewRarity.textContent = current.tier;
+        previewImage.src = current.img;
+        previewImage.alt = current.title;
+        previewText.textContent = current.desc + ' Trenutni demo price: ' + current.price + '.';
+        previewDrops.innerHTML = current.drops.map(d => `<li>${d}</li>`).join('');
+        simImage.src = current.img;
+        simImage.alt = current.title;
+        simText.textContent = current.title + ' je spreman za opening preview.';
+        simBadge.textContent = current.tier + ' selected';
+      }
+
+      document.getElementById('previewButton').addEventListener('click', () => {
+        const reveal = [
+          'Epic profile skin', '0.35 V return', 'Rare fragment', 'Arena ticket',
+          'Premium merch chance', 'XP pulse', 'Faction badge', 'Artifact shard'
+        ];
+        const result = reveal[(opened + Math.floor(balance * 10)) % reveal.length];
+        balance = Math.max(0, balance - Math.min(balance, 0.45));
+        opened += 1;
+        rwBalance.textContent = balance.toFixed(3) + ' V';
+        rwOpened.textContent = String(opened);
+        rwBest.textContent = result;
+        simResult.textContent = result;
+        simResultText.textContent = current.title + ' otvoren u demo simulatoru. Ovdje kasnije ulazi pravi opening sequence i reveal animacija.';
+      });
+
+      document.getElementById('forgeTryBtn').addEventListener('click', () => {
+        const outcomes = [
+          ['Forge uspješan', 'Signature artifact crafted i spreman za Trophy Room ili merch showcase.'],
+          ['Forge fail + partial refund', 'Povrat 0.20 V zadržava osjećaj vrijednosti i kad craft ne prođe.'],
+          ['New recipe unlocked', 'Promjena recepta otvara drugi artifact path s 5 dijelova.']
+        ];
+        const pick = outcomes[(opened + 1) % outcomes.length];
+        forgeLog.textContent = pick[0];
+        forgeText.textContent = pick[1];
+      });
+
+      document.getElementById('forgeAltBtn').addEventListener('click', () => {
+        forgeLog.textContent = 'Recipe changed';
+        forgeText.textContent = 'Demo blok mijenja forge osjećaj i priprema prostor za različite recepte: 3 dijela, 5 dijelova, ključevi + V-Coin i signature serije.';
+      });
+
+      selectCrate(0, 'crate-slot');
+    })();
+  </script>
+</body>
+</html>
