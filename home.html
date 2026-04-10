@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vendetta Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  background: #0a0a0a;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+}
+
+h1 {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+button {
+  display: block;
+  width: 220px;
+  margin: 10px auto;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #6cff9a;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #4fd47d;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>VENDETTA HOME</h1>
+
+  <button onclick="goGenerator()">START GENERATOR</button>
+  <button onclick="alert('Clan reward demo')">CLAN REWARD</button>
+</div>
+
+<script>
+function goGenerator() {
+  window.location.href = "generator.html";
+}
+</script>
+
+</body>
+</html>
