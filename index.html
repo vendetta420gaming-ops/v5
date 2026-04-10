@@ -6,49 +6,46 @@
 <title>Vendetta Login</title>
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box;}
 
-body {
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+body{
+  font-family:Arial;
+  overflow:hidden;
 }
 
-/* VIDEO */
-video {
-  position: fixed;
+video{
+  position:fixed;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  object-fit: cover;
+  object-fit:cover;
   z-index:-1;
 }
 
-/* OVERLAY */
-.overlay {
-  position: fixed;
+.overlay{
+  position:fixed;
   width:100%;
   height:100%;
-  background: rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.5);
 }
 
-/* CENTER */
-.container {
+.container{
   position:absolute;
   top:50%;
   left:50%;
-  transform: translate(-50%,-50%);
+  transform:translate(-50%,-50%);
   text-align:center;
 }
 
-.title {
+.title{
   color:white;
   font-size:32px;
   margin-bottom:20px;
   letter-spacing:4px;
 }
 
-.btn {
+.btn{
   display:block;
   width:220px;
   margin:10px auto;
@@ -59,17 +56,13 @@ video {
   color:white;
   cursor:pointer;
 }
-
-.btn:hover {
-  background:rgba(255,255,255,0.2);
-}
 </style>
 </head>
 
 <body>
 
 <video autoplay muted loop>
-  <source src="publicassetsbg.mp4.mp4" type="video/mp4">
+  <source src="publicassetsbg.mp4" type="video/mp4">
 </video>
 
 <div class="overlay"></div>
@@ -77,13 +70,13 @@ video {
 <div class="container">
   <div class="title">VENDETTA</div>
 
-  <button class="btn" onclick="goApp()">LOGIN</button>
-  <button class="btn" onclick="goApp()">CREATE ACCOUNT</button>
+  <button class="btn" onclick="goHome()">LOGIN</button>
+  <button class="btn" onclick="goHome()">CREATE ACCOUNT</button>
 </div>
 
 <script>
-function goApp(){
-  window.location.href = "generator.html";
+function goHome(){
+  window.location.href="home.html";
 }
 </script>
 
