@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vendetta Login</title>
+
+<style>
+body {
+    margin: 0;
+    background: #000;
+    font-family: Arial;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.box {
+    background: #111;
+    padding: 30px;
+    border-radius: 10px;
+    width: 260px;
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    background: #7CFF7C;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.status {
+    color: white;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h3 style="color:white;">Vendetta Login</h3>
+
+    <input id="email" placeholder="Email">
+    <input id="pass" type="password" placeholder="Password">
+
+    <button id="loginBtn">LOGIN</button>
+    <button id="signupBtn">SIGN UP</button>
+    <button id="startBtn">START GENERATOR</button>
+
+    <div class="status" id="status">Not logged in</div>
+</div>
+
+<script>
+let loggedIn = false;
+
+// fake login
+document.getElementById("loginBtn").onclick = () => {
+    const email = document.getElementById("email").value;
+
+    if (!email) {
+        alert("Enter email");
+        return;
+    }
+
+    loggedIn = true;
+    localStorage.setItem("vendettaUser", email);
+
+    document.getElementById("status").innerText = "Logged in as " + email;
+};
+
+// fake signup
+document.getElementById("signupBtn").onclick = () => {
+    alert("Signup simulated");
+};
+
+// start generator
+document.getElementById("startBtn").onclick = () => {
+    if (!loggedIn) {
+        alert("Login first");
+        return;
+    }
+
+    window.location.href = "generator.html";
+};
+
+// auto login if stored
+window.onload = () => {
+    const user = localStorage.getItem("vendettaUser");
+
+    if (user) {
+        loggedIn = true;
+        document.getElementById("status").innerText = "Logged in as " + user;
+    }
+};
+</script>
+
+</body>
+</html>
