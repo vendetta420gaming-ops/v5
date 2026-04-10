@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendetta Login</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+      background: black;
+    }
+
+    /* VIDEO BACKGROUND */
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    /* DARK OVERLAY */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+    }
+
+    /* CENTER CONTAINER */
+    .container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    /* BUTTON STYLE */
+    .btn {
+      width: 240px;
+      height: 55px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn:hover {
+      border-color: #8cff86;
+      color: #8cff86;
+      box-shadow: 0 0 20px rgba(140,255,134,0.4);
+    }
+
+    /* LOGO TEXT */
+    .logo {
+      color: white;
+      font-size: 32px;
+      letter-spacing: 6px;
+      margin-bottom: 30px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- VIDEO -->
+  <video autoplay muted loop playsinline>
+    <source src="publicassetsbg.mp4.mp4" type="video/mp4">
+  </video>
+
+  <!-- OVERLAY -->
+  <div class="overlay"></div>
+
+  <!-- CONTENT -->
+  <div class="container">
+    <div class="logo">VENDETTA</div>
+
+    <button class="btn" onclick="goToApp()">LOGIN</button>
+    <button class="btn" onclick="goToApp()">CREATE ACCOUNT</button>
+  </div>
+
+  <script>
+    function goToApp() {
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>
